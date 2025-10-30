@@ -1,6 +1,6 @@
 // js/main.js - VERSÃO CORRIGIDA PARA LIDAR COM PLANILHA VAZIA
 document.addEventListener('DOMContentLoaded', () => {
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJ4DQlX-EWiuExPW0dTHBz-MPAUr05GED51-2_uxsZXAY8ZHmgvCFTQgcgzedB90ON/exec'; // Use a sua URL mais recente aqui
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBTwTsv5XGt499qIQY4oWuQZ3cfG8Alhoe37JtS46yxs1gY3pzPl32nUIgMUl0hcG8/exec'; // Use a sua URL mais recente aqui
     const ADMIN_PASSWORD = "rifa123";
     const REPORT_PASSWORD = "report456";
     let rifaData = [];
