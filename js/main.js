@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- ÁREA DE CONFIGURAÇÃO ---
-    // Adicionamos um parâmetro '?v=2' para ajudar a evitar problemas de cache
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQN0Vnt7NriOVF2j7BayiyVxcbxTwY9IwUjUp8OuOJjRUTQCOkTS3CFdLQYXJ3U3FF/exec?v=2';
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQN0Vnt7NriOVF2j7BayiyVxcbxTwY9IwUjUp8OuOJjRUTQCOkTS3CFdLQYXJ3U3FF/exec';
     const ADMIN_PASSWORD = "rifa123";
     const REPORT_PASSWORD = "report456";
     let rifaData = [];
@@ -88,18 +87,18 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('nome', nome);
         formData.append('telefone', telefone);
 
-        fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData, mode: 'no-cors' }) // mode: 'no-cors' pode ajudar em alguns casos
-            .then(() => { // Resposta no-cors é opaca, então não tentamos ler o JSON
-                alert(`Reserva do número feita!\nSua participação está PENDENTE. Por favor, realize o pagamento via PIX e avise o organizador para confirmar.`);
-                reservationForm.reset();
-                selectedNumberText.innerHTML = `Clique em um número na rifa para começar.`;
-                numeroSelecionado = null;
-                setTimeout(() => carregarDadosDaPlanilha(), 500); // Dá um tempo para o Google processar
+        fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Reserva do número feita!\nSua participação está PENDENTE. Por favor, realize o pagamento via PIX e avise o organizador para confirmar.`);
+                    reservationForm.reset();
+                    selectedNumberText.innerHTML = `Clique em um número na rifa para começar.`;
+                    numeroSelecionado = null;
+                    carregarDadosDaPlanilha();
+                } else { throw new Error(data.message || 'Erro desconhecido do servidor.'); }
             })
-            .catch(error => {
-                console.error("Erro no fetch de reserva:", error);
-                alert(`Ocorreu um erro ao salvar sua reserva. Por favor, tente novamente.`);
-            })
+            .catch(error => alert(`Ocorreu um erro: ${error.message}`))
             .finally(() => {
                 submitButton.disabled = false;
                 submitButton.textContent = 'Confirmar Reserva';
@@ -121,6 +120,9 @@ document.addEventListener('DOMContentLoaded', () => {
         dadosOrdenados.forEach(item => {
             const itemDiv = document.createElement('div');
             itemDiv.classList.add('admin-participant-item');
+            // NOVO: Adiciona um identificador para encontrar este elemento facilmente
+            itemDiv.dataset.numero = item.numero; 
+            
             const statusInfo = item.status === 'pendente' ? ' (Pendente)' : '';
             itemDiv.innerHTML = `<span class="info"><strong>${item.numero}</strong> - ${item.nome}${statusInfo}</span>`;
             
@@ -147,40 +149,60 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function aprovarParticipante(numero) {
+        // NOVO: Fornece feedback visual imediato
+        const itemElement = adminParticipantsList.querySelector(`[data-numero='${numero}']`);
+        if (itemElement) {
+            itemElement.style.opacity = '0.5';
+            itemElement.querySelectorAll('button').forEach(btn => btn.disabled = true);
+        }
+
         const formData = new FormData();
         formData.append('action', 'approve');
         formData.append('numero', numero);
 
         fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
-            .then(res => { // Não vamos mais tentar ler o JSON, pois o retorno do Google pode ser um redirect
-                if (res.ok || res.type === 'opaque') {
-                    setTimeout(() => carregarDadosDaPlanilha(), 500); // Sucesso, recarrega tudo após um pequeno delay
-                } else {
-                    throw new Error(`A resposta do servidor não foi OK. Status: ${res.status}`);
-                }
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    carregarDadosDaPlanilha(); // Sucesso, recarrega tudo
+                } else { throw new Error(data.message); }
             }).catch(error => {
-                console.error("Erro na operação de aprovar:", error);
-                alert(`Erro ao aprovar. Verifique o console (F12) para detalhes. Pode ser necessário re-implantar o Google Script.`);
+                alert(`Erro ao aprovar: ${error.message}`);
+                // NOVO: Restaura a aparência original em caso de erro
+                if (itemElement) {
+                    itemElement.style.opacity = '1';
+                    itemElement.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                }
             });
     }
 
     function excluirParticipante(numero) {
         const participante = rifaData.find(p => p.numero === numero);
         if (confirm(`Tem certeza que deseja excluir a reserva do número ${numero} (${participante.nome})?`)) {
+            // NOVO: Fornece feedback visual imediato
+            const itemElement = adminParticipantsList.querySelector(`[data-numero='${numero}']`);
+            if (itemElement) {
+                itemElement.style.opacity = '0.5';
+                itemElement.querySelectorAll('button').forEach(btn => btn.disabled = true);
+            }
+
             const formData = new FormData();
             formData.append('action', 'delete');
             formData.append('numero', numero);
 
             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
-                .then(res => { // Mesmo tratamento da função de aprovar
-                    if (res.ok || res.type === 'opaque') {
-                         setTimeout(() => carregarDadosDaPlanilha(), 500); // Sucesso, recarrega tudo
-                    } else {
-                        throw new Error(`A resposta do servidor não foi OK. Status: ${res.status}`);
-                    }
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        carregarDadosDaPlanilha(); // Sucesso, recarrega tudo
+                    } else { throw new Error(data.message); }
                 }).catch(error => {
-                    console.error("Erro na operação de excluir:", error);
-                    alert(`Erro ao excluir. Verifique o console (F12) para detalhes. Pode ser necessário re-implantar o Google Script.`);
+                    alert(`Erro ao excluir: ${error.message}`);
+                     // NOVO: Restaura a aparência original em caso de erro
+                    if (itemElement) {
+                        itemElement.style.opacity = '1';
+                        itemElement.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                    }
                 });
         }
     }
@@ -204,8 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function carregarDadosDaPlanilha() {
         grid.dataset.loading = 'true';
         try {
-            // Para o GET, usamos uma URL com um timestamp para garantir que não pegamos dados do cache
-            const response = await fetch(`${GOOGLE_SCRIPT_URL}&t=${new Date().getTime()}`);
+            const response = await fetch(`${GOOGLE_SCRIPT_URL}?t=${new Date().getTime()}`);
             if (!response.ok) throw new Error(`Erro na rede: ${response.statusText}`);
             const data = await response.json();
             rifaData = data.data || [];
