@@ -1,152 +1,96 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Rifa Beneficente - Painel</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0;}
-    .container { max-width: 700px; margin: 30px auto; background: #fff; padding: 30px 25px 25px 25px; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.07);}
-    h1 { color: #0a5a29; margin-bottom: 18px; }
-    label { font-weight: bold; }
-    textarea { width: 100%; min-height: 60px; padding: 8px; font-size: 15px; border-radius: 4px; border: 1px solid #bbb; margin-top: 8px; margin-bottom: 8px; resize: vertical;}
-    input[type="text"] { width: 100%; padding: 10px; font-size: 15px; border-radius: 4px; border: 1px solid #bbb; margin-top: 8px; margin-bottom: 12px;}
-    button { padding: 8px 20px; background: #0a5a29; color: #fff; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; margin-top: 8px;}
-    button:hover { background: #12803c;}
-    #mensagem { margin: 12px 0 0 0; color: #147e1a; font-weight: bold;}
-    #relatorio, #admin { margin-top: 35px; }
-    table { border-collapse: collapse; width: 100%; background: #fafbfc; margin-bottom: 20px;}
-    th, td { border: 1px solid #bbb; padding: 9px 7px; text-align: left; font-size: 15px;}
-    th { background: #e9ecef; font-weight: bold;}
-    .reserva-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;}
-    .reserva-nome { font-size: 16px; }
-    .excluir-btn { background: #e13e3e; color: #fff; border: none; border-radius: 4px; padding: 6px 15px; margin-left: 12px; cursor: pointer; font-size: 15px;}
-    .excluir-btn:hover { background: #b70e0e; }
-    #admin-title { margin-top: 30px; color: #444; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rifa Beneficente - Marcelo Domingues</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div class="container">
-    <h1>Rifa Beneficente - Painel</h1>
-    <!-- Formulário para adicionar reserva -->
-    <form id="reservaForm" autocomplete="off">
-      <label for="reservaInput">Adicionar reserva (nome, número, etc):</label><br>
-      <input type="text" id="reservaInput" placeholder="Digite seu nome ou o nome da reserva" required>
-      <button type="submit">Confirmar Reserva</button>
-      <div id="mensagem"></div>
-    </form>
+    <div class="main-wrapper">
 
-    <!-- Parte da Rifa: Listagem de reservas -->
-    <div id="relatorio"></div>
+        <!-- Coluna 1: Informações -->
+        <div class="info-container">
+            <h2>Uma Ajuda Especial 🙏🏼</h2>
+            <p>Olá, amigos e colegas! Estou organizando esta rifa com um objetivo muito especial e pessoal...</p>
+            <div class="pix-details">
+                <p><strong>Cada número custa R$20,00.</strong></p>
+                <p>✅ Escolha seu número disponível<br>✅ Faça o Pix</p>
+                <p><strong>🔗 Chave Pix:</strong><br> <a href="#">25b8f76e-e12f-44cf-b93f-5a5e0e028176</a></p>
+                <p><strong>Ou link de pgto:</strong><br> <a href="https://link.mercadopago.com.br/udistockburn" target="_blank" rel="noopener">link.mercadopago.com.br/udistockburn</a></p>
+                <p><strong>Ou escaneie o QR Code:</strong></p>
+                <img src="img/qrcode.jpg" alt="QR Code Pix" style="width:180px;display:block;margin:auto;">
+                <p><strong>Nome:</strong> Marcelo Domingues dos Santos</p>
+                <p>Contamos com a participação de todos! Boa sorte 🍀</p>
+            </div>
+        </div>
 
-    <!-- Área de administração para excluir reservas -->
-    <div id="admin">
-      <h2 id="admin-title">Administração - Excluir Reservas</h2>
-      <div id="listaReservas"></div>
+        <!-- Coluna 2: A Rifa -->
+        <div class="raffle-container">
+            <header class="header">
+                <img src="img/emoji.png" alt="Emoji apaixonado" class="emoji emoji-left">
+                <div class="title-wrapper"><h1>Rifa</h1><span class="script-title">Beneficente</span></div>
+                <img src="img/emoji.png" alt="Emoji apaixonado" class="emoji emoji-right">
+            </header>
+            <main class="main-content">
+                <div class="description">
+                    <p>Concorra a uma cesta de produtos e um presente misterioso!</p>
+                    <ul class="prize-description-list">
+                        <li>Creme Hidratante da Natura</li>
+                        <li>Kit Sabonete em Barra</li>
+                        <li>Desodorante Natura Homem</li>
+                        <li>Kit Sabonete Natura Homem</li>
+                    </ul>
+                </div>
+                <div class="prize-image"><img src="img/premio.jpg" alt="Cesta de Produtos"></div>
+            </main>
+            <div class="price-box">CADA NÚMERO VALE R$ 20,00</div>
+            <div id="number-grid" class="number-grid"></div>
+            <footer class="footer">
+                <div class="sorteio-info"><h3>SORTEIO</h3><div class="sorteio-date">28/11/2025</div></div>
+            </footer>
+        </div>
+
+        <!-- Coluna 3: Reserva, Lista e Admin -->
+        <div class="reservation-container">
+            <h2>Reservar Número</h2>
+            <p id="selected-number-text">Clique em um número na rifa para começar.</p>
+            <form id="reservation-form" autocomplete="off">
+                <label for="nome-comprador" class="sr-only">Seu nome completo</label>
+                <input type="text" id="nome-comprador" placeholder="Seu nome completo" required>
+                <label for="telefone-comprador" class="sr-only">Seu telefone com DDD</label>
+                <input type="tel" id="telefone-comprador" placeholder="Seu telefone com DDD" required pattern="^\d{10,11}$">
+                <button type="submit">Confirmar Reserva</button>
+            </form>
+            <div class="participants-list-wrapper">
+                <h2>Participantes</h2>
+                <div id="participants-list"></div>
+            </div>
+            <!-- SEÇÃO DO ADMINISTRADOR -->
+            <div class="admin-section">
+                <h2>Administração</h2>
+                <form id="admin-login-form" class="admin-form" autocomplete="off">
+                    <label for="admin-password" class="sr-only">Senha do Admin</label>
+                    <input type="password" id="admin-password" placeholder="Senha do Admin">
+                    <button type="submit" id="admin-login-btn">Entrar</button>
+                </form>
+                <div id="admin-controls" class="hidden">
+                    <div id="admin-participants-list"></div>
+                    <h3>Extrair Relatório</h3>
+                    <form id="report-form" class="admin-form" autocomplete="off">
+                        <label for="report-password" class="sr-only">Senha do Relatório</label>
+                        <input type="password" id="report-password" placeholder="Senha do Relatório">
+                        <button type="submit" id="extract-report-btn">Extrair</button>
+                    </form>
+                    <textarea id="report-output" class="hidden" readonly></textarea>
+                </div>
+            </div>
+        </div>
+
     </div>
-  </div>
-
-  <script>
-    // Cole aqui a URL do seu Apps Script publicado!
-    const URL = "https://script.google.com/macros/s/AKfycbxQN0Vnt7NriOVF2j7BayiyVxcbxTwY9IwUjUp8OuOJjRUTQCOkTS3CFdLQYXJ3U3FF/exec";
-
-    // Mensagem de feedback ao usuário
-    function mostrarMensagem(texto, erro = false) {
-      const msg = document.getElementById('mensagem');
-      msg.textContent = texto;
-      msg.style.color = erro ? '#e13e3e' : '#147e1a';
-      setTimeout(() => { msg.textContent = ''; }, 2200);
-    }
-
-    // Salvar reserva na planilha
-    document.getElementById('reservaForm').onsubmit = async function(e) {
-      e.preventDefault();
-      const reserva = document.getElementById('reservaInput').value.trim();
-      if (reserva) {
-        await fetch(URL, {
-          method: 'POST',
-          body: JSON.stringify({ reserva }),
-          headers: { 'Content-Type': 'application/json' }
-        });
-        document.getElementById('reservaInput').value = '';
-        mostrarMensagem('Reserva confirmada!');
-        carregarRifa();
-        carregarReservas();
-      }
-    };
-
-    // Parte da rifa: Mostrar tabela das reservas
-    async function carregarRifa() {
-      const relatorioDiv = document.getElementById('relatorio');
-      relatorioDiv.innerHTML = 'Carregando...';
-      try {
-        const res = await fetch(URL);
-        const linhas = await res.json();
-        if (!linhas || linhas.length < 2) {
-          relatorioDiv.innerHTML = "<i>Nenhuma reserva feita ainda.</i>";
-          return;
-        }
-        let html = '<h2>Reservas Realizadas</h2>';
-        html += '<table><tbody>';
-        linhas.forEach((linha, idx) => {
-          html += '<tr>';
-          linha.forEach(celula => {
-            if(idx === 0) {
-              html += `<th>${celula}</th>`; // primeira linha como cabeçalho
-            } else {
-              html += `<td>${celula}</td>`;
-            }
-          });
-          html += '</tr>';
-        });
-        html += '</tbody></table>';
-        relatorioDiv.innerHTML = html;
-      } catch(err) {
-        relatorioDiv.innerHTML = "Erro ao carregar reservas.";
-      }
-    }
-
-    // Administração: Mostrar reservas com botão de exclusão
-    async function carregarReservas() {
-      const listaDiv = document.getElementById('listaReservas');
-      listaDiv.innerHTML = 'Carregando...';
-      try {
-        const res = await fetch(URL);
-        const linhas = await res.json();
-        if (!linhas || linhas.length < 2) {
-          listaDiv.innerHTML = "<i>Nenhuma reserva feita ainda.</i>";
-          return;
-        }
-        // pular cabeçalho, mostrar reservas
-        let html = '';
-        linhas.slice(1).forEach((linha, idx) => {
-          html += `<div class="reserva-item">
-            <span class="reserva-nome">${linha[0]}</span>
-            <button class="excluir-btn" onclick="excluirReserva(${idx})">Excluir</button>
-          </div>`;
-        });
-        listaDiv.innerHTML = html;
-      } catch (err) {
-        listaDiv.innerHTML = "<i>Erro ao carregar reservas.</i>";
-      }
-    }
-
-    // Excluir reserva (por índice)
-    window.excluirReserva = async function(indice) {
-      if (!confirm("Tem certeza que deseja excluir esta reserva?")) return;
-      await fetch(URL, {
-        method: 'POST',
-        body: JSON.stringify({ excluirIndice: indice + 1 }), // +1 pois 0 é o cabeçalho
-        headers: { 'Content-Type': 'application/json' }
-      });
-      mostrarMensagem('Reserva excluída!', false);
-      carregarRifa();
-      carregarReservas();
-    };
-
-    // Inicializa listas ao abrir
-    carregarRifa();
-    carregarReservas();
-  </script>
+    <script src="js/main.js"></script>
 </body>
 </html>
