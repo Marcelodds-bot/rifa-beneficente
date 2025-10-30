@@ -1,14 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- ÁREA DE CONFIGURAÇÃO ---
-    // ATENÇÃO: Para produção real, remova senhas do código!
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQN0Vnt7NriOVF2j7BayiyVxcbxTwY9IwUjUp8OuOJjRUTQCOkTS3CFdLQYXJ3U3FF/exec';
     const ADMIN_PASSWORD = "rifa123";
     const REPORT_PASSWORD = "report456";
-    const rifaData = [
-        { numero: 14, nome: "Maria Silva", telefone: "11988887777", status: 'pago' },
-        { numero: 15, nome: "João Pereira", telefone: "21977776666", status: 'pago' },
-        { numero: 23, nome: "Ana Lima", telefone: "31966665555", status: 'pendente' },
-        { numero: 26, nome: "Carlos Souza", telefone: "81955554444", status: 'pago' },
-    ];
+    let rifaData = [];
     // --- FIM DA ÁREA DE CONFIGURAÇÃO ---
 
     const grid = document.getElementById('number-grid');
@@ -31,6 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function criarGrid() {
+        grid.innerHTML = 'Carregando números...';
+        if (rifaData.length === 0 && grid.dataset.loading === 'true') return;
+
         grid.innerHTML = '';
         for (let i = 1; i <= 100; i++) {
             const numeroEl = document.createElement('div');
@@ -38,11 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const numeroFormatado = String(i).padStart(2, '0');
             const comprador = rifaData.find(item => item.numero === i);
             if (comprador) {
-                if(comprador.status === 'pago') {
-                    numeroEl.classList.add('vendido-status');
-                } else {
-                    numeroEl.classList.add('pendente-status');
-                }
+                numeroEl.classList.add(comprador.status === 'pago' ? 'vendido-status' : 'pendente-status');
                 const primeiroNome = comprador.nome.split(' ')[0];
                 numeroEl.innerHTML = `<strong>${numeroFormatado}</strong><span class="comprador">${primeiroNome}</span>`;
             } else {
@@ -82,16 +76,33 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!numeroSelecionado) { alert('Por favor, clique em um número disponível na rifa primeiro!'); return; }
         const nome = document.getElementById('nome-comprador').value;
         const telefone = document.getElementById('telefone-comprador').value;
-        if (!/^\d{10,11}$/.test(telefone)) {
-            alert('Digite um telefone válido com DDD (apenas números)');
-            return;
-        }
-        rifaData.push({ numero: numeroSelecionado, nome: nome, telefone: telefone, status: 'pendente' });
-        renderizarPagina();
-        reservationForm.reset();
-        selectedNumberText.innerHTML = `Clique em um número na rifa para começar.`;
-        numeroSelecionado = null;
-        alert(`Reserva do número feita!\nSua participação está PENDENTE. Por favor, realize o pagamento via PIX e avise o organizador para confirmar.`);
+        if (!/^\d{10,11}$/.test(telefone)) { alert('Digite um telefone válido com DDD (apenas números)'); return; }
+
+        const submitButton = event.target.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.textContent = 'Enviando...';
+
+        const formData = new FormData();
+        formData.append('numero', numeroSelecionado);
+        formData.append('nome', nome);
+        formData.append('telefone', telefone);
+
+        fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Reserva do número feita!\nSua participação está PENDENTE. Por favor, realize o pagamento via PIX e avise o organizador para confirmar.`);
+                    reservationForm.reset();
+                    selectedNumberText.innerHTML = `Clique em um número na rifa para começar.`;
+                    numeroSelecionado = null;
+                    carregarDadosDaPlanilha(); // Recarrega para mostrar a nova reserva
+                } else { throw new Error(data.message); }
+            })
+            .catch(error => alert(`Ocorreu um erro: ${error.message}`))
+            .finally(() => {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Confirmar Reserva';
+            });
     });
 
     adminLoginForm.addEventListener('submit', function(e) {
@@ -134,22 +145,34 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function aprovarParticipante(numeroParaAprovar) {
-        const participante = rifaData.find(p => p.numero === numeroParaAprovar);
-        if (participante) {
-            participante.status = 'pago';
-            renderizarPagina();
-        }
+    function aprovarParticipante(numero) {
+        const formData = new FormData();
+        formData.append('action', 'approve');
+        formData.append('numero', numero);
+
+        fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    carregarDadosDaPlanilha(); // Sucesso, recarrega tudo
+                } else { throw new Error(data.message); }
+            }).catch(error => alert(`Erro ao aprovar: ${error.message}`));
     }
 
-    function excluirParticipante(numeroParaExcluir) {
-        const participante = rifaData.find(p => p.numero === numeroParaExcluir);
-        if (confirm(`Tem certeza que deseja excluir a reserva do número ${numeroParaExcluir} (${participante.nome})?`)) {
-            const index = rifaData.findIndex(p => p.numero === numeroParaExcluir);
-            if (index > -1) {
-                rifaData.splice(index, 1);
-                renderizarPagina();
-            }
+    function excluirParticipante(numero) {
+        const participante = rifaData.find(p => p.numero === numero);
+        if (confirm(`Tem certeza que deseja excluir a reserva do número ${numero} (${participante.nome})?`)) {
+            const formData = new FormData();
+            formData.append('action', 'delete');
+            formData.append('numero', numero);
+
+            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        carregarDadosDaPlanilha(); // Sucesso, recarrega tudo
+                    } else { throw new Error(data.message); }
+                }).catch(error => alert(`Erro ao excluir: ${error.message}`));
         }
     }
 
@@ -169,5 +192,21 @@ document.addEventListener('DOMContentLoaded', () => {
         } else { alert('Senha do relatório incorreta!'); }
     });
 
-    renderizarPagina();
+    async function carregarDadosDaPlanilha() {
+        grid.dataset.loading = 'true';
+        try {
+            const response = await fetch(GOOGLE_SCRIPT_URL);
+            if (!response.ok) throw new Error(`Erro na rede: ${response.statusText}`);
+            const data = await response.json();
+            rifaData = data.data || [];
+            renderizarPagina();
+        } catch (error) {
+            console.error('Falha ao carregar dados da rifa:', error);
+            grid.innerHTML = '<p style="color:red; text-align:center;">Não foi possível carregar os números. Tente recarregar a página.</p>';
+        } finally {
+            grid.dataset.loading = 'false';
+        }
+    }
+
+    carregarDadosDaPlanilha();
 });
