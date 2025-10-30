@@ -1,6 +1,6 @@
 // js/main.js - VERSÃO CORRIGIDA E ESTÁVEL
 document.addEventListener('DOMContentLoaded', () => {
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQN0Vnt7NriOVF2j7BayiyVxcbxTwY9IwUjUp8OuOJjRUTQCOkTS3CFdLQYXJ3U3FF/exec';
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzZ49xbMcPysRE8UAMXyj2806V4b40Py6Y-zC78tZ5ssV4VuNr1XL7croQdxJNR6g/exec';
     const ADMIN_PASSWORD = "rifa123";
     const REPORT_PASSWORD = "report456";
     let rifaData = [];
