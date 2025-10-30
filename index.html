@@ -2,18 +2,22 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Rifa Beneficente - Reservas</title>
+  <title>Rifa Beneficente - Painel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0;}
-    .container { max-width: 600px; margin: 30px auto; background: #fff; padding: 30px 25px 25px 25px; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.07);}
+    .container { max-width: 700px; margin: 30px auto; background: #fff; padding: 30px 25px 25px 25px; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.07);}
     h1 { color: #0a5a29; margin-bottom: 18px; }
     label { font-weight: bold; }
+    textarea { width: 100%; min-height: 60px; padding: 8px; font-size: 15px; border-radius: 4px; border: 1px solid #bbb; margin-top: 8px; margin-bottom: 8px; resize: vertical;}
     input[type="text"] { width: 100%; padding: 10px; font-size: 15px; border-radius: 4px; border: 1px solid #bbb; margin-top: 8px; margin-bottom: 12px;}
     button { padding: 8px 20px; background: #0a5a29; color: #fff; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; margin-top: 8px;}
     button:hover { background: #12803c;}
     #mensagem { margin: 12px 0 0 0; color: #147e1a; font-weight: bold;}
-    #admin { margin-top: 35px; }
+    #relatorio, #admin { margin-top: 35px; }
+    table { border-collapse: collapse; width: 100%; background: #fafbfc; margin-bottom: 20px;}
+    th, td { border: 1px solid #bbb; padding: 9px 7px; text-align: left; font-size: 15px;}
+    th { background: #e9ecef; font-weight: bold;}
     .reserva-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;}
     .reserva-nome { font-size: 16px; }
     .excluir-btn { background: #e13e3e; color: #fff; border: none; border-radius: 4px; padding: 6px 15px; margin-left: 12px; cursor: pointer; font-size: 15px;}
@@ -23,27 +27,30 @@
 </head>
 <body>
   <div class="container">
-    <h1>Rifa Beneficente</h1>
-    <!-- Formulário de reserva -->
+    <h1>Rifa Beneficente - Painel</h1>
+    <!-- Formulário para adicionar reserva -->
     <form id="reservaForm" autocomplete="off">
-      <label for="reservaInput">Nome para reserva:</label>
+      <label for="reservaInput">Adicionar reserva (nome, número, etc):</label><br>
       <input type="text" id="reservaInput" placeholder="Digite seu nome ou o nome da reserva" required>
       <button type="submit">Confirmar Reserva</button>
       <div id="mensagem"></div>
     </form>
 
-    <!-- Área de administração -->
+    <!-- Parte da Rifa: Listagem de reservas -->
+    <div id="relatorio"></div>
+
+    <!-- Área de administração para excluir reservas -->
     <div id="admin">
-      <h2 id="admin-title">Administração - Reservas</h2>
+      <h2 id="admin-title">Administração - Excluir Reservas</h2>
       <div id="listaReservas"></div>
     </div>
   </div>
 
   <script>
-    // COLE SUA URL DO APPS SCRIPT
+    // Cole aqui a URL do seu Apps Script publicado!
     const URL = "https://script.google.com/macros/s/AKfycbxQN0Vnt7NriOVF2j7BayiyVxcbxTwY9IwUjUp8OuOJjRUTQCOkTS3CFdLQYXJ3U3FF/exec";
 
-    // Feedback ao usuário
+    // Mensagem de feedback ao usuário
     function mostrarMensagem(texto, erro = false) {
       const msg = document.getElementById('mensagem');
       msg.textContent = texto;
@@ -51,23 +58,55 @@
       setTimeout(() => { msg.textContent = ''; }, 2200);
     }
 
-    // Salvar reserva
+    // Salvar reserva na planilha
     document.getElementById('reservaForm').onsubmit = async function(e) {
       e.preventDefault();
-      const nome = document.getElementById('reservaInput').value.trim();
-      if (nome) {
+      const reserva = document.getElementById('reservaInput').value.trim();
+      if (reserva) {
         await fetch(URL, {
           method: 'POST',
-          body: JSON.stringify({ reserva: nome }),
+          body: JSON.stringify({ reserva }),
           headers: { 'Content-Type': 'application/json' }
         });
         document.getElementById('reservaInput').value = '';
         mostrarMensagem('Reserva confirmada!');
+        carregarRifa();
         carregarReservas();
       }
     };
 
-    // Buscar e mostrar reservas
+    // Parte da rifa: Mostrar tabela das reservas
+    async function carregarRifa() {
+      const relatorioDiv = document.getElementById('relatorio');
+      relatorioDiv.innerHTML = 'Carregando...';
+      try {
+        const res = await fetch(URL);
+        const linhas = await res.json();
+        if (!linhas || linhas.length < 2) {
+          relatorioDiv.innerHTML = "<i>Nenhuma reserva feita ainda.</i>";
+          return;
+        }
+        let html = '<h2>Reservas Realizadas</h2>';
+        html += '<table><tbody>';
+        linhas.forEach((linha, idx) => {
+          html += '<tr>';
+          linha.forEach(celula => {
+            if(idx === 0) {
+              html += `<th>${celula}</th>`; // primeira linha como cabeçalho
+            } else {
+              html += `<td>${celula}</td>`;
+            }
+          });
+          html += '</tr>';
+        });
+        html += '</tbody></table>';
+        relatorioDiv.innerHTML = html;
+      } catch(err) {
+        relatorioDiv.innerHTML = "Erro ao carregar reservas.";
+      }
+    }
+
+    // Administração: Mostrar reservas com botão de exclusão
     async function carregarReservas() {
       const listaDiv = document.getElementById('listaReservas');
       listaDiv.innerHTML = 'Carregando...';
@@ -95,17 +134,18 @@
     // Excluir reserva (por índice)
     window.excluirReserva = async function(indice) {
       if (!confirm("Tem certeza que deseja excluir esta reserva?")) return;
-      // O índice enviado já está correto, pois pula o cabeçalho.
       await fetch(URL, {
         method: 'POST',
         body: JSON.stringify({ excluirIndice: indice + 1 }), // +1 pois 0 é o cabeçalho
         headers: { 'Content-Type': 'application/json' }
       });
       mostrarMensagem('Reserva excluída!', false);
+      carregarRifa();
       carregarReservas();
     };
 
-    // Inicializa lista ao abrir
+    // Inicializa listas ao abrir
+    carregarRifa();
     carregarReservas();
   </script>
 </body>
