@@ -1,6 +1,6 @@
-// js/main.js - VERSÃO CORRIGIDA E ESTÁVEL
+// js/main.js - VERSÃO CORRIGIDA PARA LIDAR COM PLANILHA VAZIA
 document.addEventListener('DOMContentLoaded', () => {
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzQjWfong3ukX9EXIN0sj02lexiUaZHre97hdG_lfsSDhiPngHVEnN2tNZj8Y8axLqg/exec';
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzQjWfong3ukX9EXIN0sj02lexiUaZHre97hdG_lfsSDhiPngHVEnN2tNZj8Y8axLqg/exec'; // Use a sua URL mais recente aqui
     const ADMIN_PASSWORD = "rifa123";
     const REPORT_PASSWORD = "report456";
     let rifaData = [];
@@ -24,18 +24,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // =========================================================
+    // FUNÇÃO CORRIGIDA - A ÚNICA PARTE QUE MUDOU SIGNIFICATIVAMENTE
+    // =========================================================
     function criarGrid() {
-        if (rifaData.length === 0 && grid.dataset.loading === 'true') {
-             grid.innerHTML = 'Carregando números...';
-             return;
-        }
+        // Limpa a mensagem "Carregando..." imediatamente, não importa o que aconteça.
+        grid.innerHTML = ''; 
 
-        grid.innerHTML = '';
         for (let i = 1; i <= 100; i++) {
             const numeroEl = document.createElement('div');
             numeroEl.classList.add('numero');
             const numeroFormatado = String(i).padStart(2, '0');
             const comprador = rifaData.find(item => item.numero === i);
+            
             if (comprador) {
                 numeroEl.classList.add(comprador.status === 'pago' ? 'vendido-status' : 'pendente-status');
                 const primeiroNome = comprador.nome.split(' ')[0];
@@ -48,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
             grid.appendChild(numeroEl);
         }
     }
+    // =========================================================
     
     function selecionarNumero(numero) {
         numeroSelecionado = numero;
@@ -122,13 +124,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const itemDiv = document.createElement('div');
             itemDiv.classList.add('admin-participant-item');
             itemDiv.dataset.numero = item.numero; 
-            
             const statusInfo = item.status === 'pendente' ? ' (Pendente)' : '';
             itemDiv.innerHTML = `<span class="info"><strong>${item.numero}</strong> - ${item.nome}${statusInfo}</span>`;
-            
             const actionsDiv = document.createElement('div');
             actionsDiv.classList.add('actions');
-
             if (item.status === 'pendente') {
                 const approveBtn = document.createElement('button');
                 approveBtn.classList.add('approve-btn');
@@ -136,13 +135,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 approveBtn.addEventListener('click', () => aprovarParticipante(item.numero));
                 actionsDiv.appendChild(approveBtn);
             }
-
             const deleteBtn = document.createElement('button');
             deleteBtn.classList.add('delete-btn');
             deleteBtn.innerHTML = '&times;';
             deleteBtn.addEventListener('click', () => excluirParticipante(item.numero));
             actionsDiv.appendChild(deleteBtn);
-            
             itemDiv.appendChild(actionsDiv);
             adminParticipantsList.appendChild(itemDiv);
         });
@@ -150,69 +147,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function aprovarParticipante(numero) {
         const itemElement = adminParticipantsList.querySelector(`[data-numero='${numero}']`);
-        if (itemElement) {
-            itemElement.style.opacity = '0.5';
-            itemElement.querySelectorAll('button').forEach(btn => btn.disabled = true);
-        }
-
+        if (itemElement) { itemElement.style.opacity = '0.5'; itemElement.querySelectorAll('button').forEach(btn => btn.disabled = true); }
         const formData = new FormData();
         formData.append('action', 'approve');
         formData.append('numero', numero);
-
-        fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) {
-                    carregarDadosDaPlanilha();
-                } else { throw new Error(data.message); }
-            }).catch(error => {
-                alert(`Erro ao aprovar: ${error.message}`);
-                if (itemElement) {
-                    itemElement.style.opacity = '1';
-                    itemElement.querySelectorAll('button').forEach(btn => btn.disabled = false);
-                }
-            });
+        fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => { if(data.success) { carregarDadosDaPlanilha(); } else { throw new Error(data.message); } }).catch(error => { alert(`Erro ao aprovar: ${error.message}`); if (itemElement) { itemElement.style.opacity = '1'; itemElement.querySelectorAll('button').forEach(btn => btn.disabled = false); } });
     }
 
     function excluirParticipante(numero) {
         const participante = rifaData.find(p => p.numero === numero);
         if (confirm(`Tem certeza que deseja excluir a reserva do número ${numero} (${participante.nome})?`)) {
             const itemElement = adminParticipantsList.querySelector(`[data-numero='${numero}']`);
-            if (itemElement) {
-                itemElement.style.opacity = '0.5';
-                itemElement.querySelectorAll('button').forEach(btn => btn.disabled = true);
-            }
-
+            if (itemElement) { itemElement.style.opacity = '0.5'; itemElement.querySelectorAll('button').forEach(btn => btn.disabled = true); }
             const formData = new FormData();
             formData.append('action', 'delete');
             formData.append('numero', numero);
-
-            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData })
-                .then(res => res.json())
-                .then(data => {
-                    if(data.success) {
-                        carregarDadosDaPlanilha();
-                    } else { throw new Error(data.message); }
-                }).catch(error => {
-                    alert(`Erro ao excluir: ${error.message}`);
-                    if (itemElement) {
-                        itemElement.style.opacity = '1';
-                        itemElement.querySelectorAll('button').forEach(btn => btn.disabled = false);
-                    }
-                });
+            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => { if(data.success) { carregarDadosDaPlanilha(); } else { throw new Error(data.message); } }).catch(error => { alert(`Erro ao excluir: ${error.message}`); if (itemElement) { itemElement.style.opacity = '1'; itemElement.querySelectorAll('button').forEach(btn => btn.disabled = false); } });
         }
     }
 
     reportForm.addEventListener('submit', function(e) {
         e.preventDefault();
         if (document.getElementById('report-password').value === REPORT_PASSWORD) {
-            let reportText = "Relatório de Participantes - Rifa Beneficente\n";
-            reportText += "================================================\n";
+            let reportText = "Relatório de Participantes - Rifa Beneficente\n================================================\n";
             const dadosOrdenados = [...rifaData].sort((a, b) => a.numero - b.numero);
-            dadosOrdenados.forEach(item => {
-                const status = item.status.toUpperCase();
-                reportText += `Nº: ${String(item.numero).padStart(3, '0')} | Nome: ${item.nome} | Telefone: ${item.telefone} | Status: ${status}\n`;
-            });
+            dadosOrdenados.forEach(item => { const status = item.status.toUpperCase(); reportText += `Nº: ${String(item.numero).padStart(3, '0')} | Nome: ${item.nome} | Telefone: ${item.telefone} | Status: ${status}\n`; });
             reportOutput.value = reportText;
             reportOutput.classList.remove('hidden');
             reportOutput.select();
@@ -224,16 +183,18 @@ document.addEventListener('DOMContentLoaded', () => {
         grid.innerHTML = 'Carregando números...';
         try {
             const response = await fetch(GOOGLE_SCRIPT_URL); 
-            if (!response.ok) throw new Error(`Erro de rede ao buscar dados: ${response.statusText}`);
+            if (!response.ok) throw new Error(`Erro de rede: ${response.statusText}`);
             const data = await response.json();
+            if (data.error) throw new Error(data.error);
             rifaData = data.data || [];
             renderizarPagina();
         } catch (error) {
             console.error('Falha ao carregar dados da rifa:', error);
-            grid.innerHTML = '<p style="color:red; text-align:center;">Falha ao carregar os números. Verifique as permissões do Google Script e o console (F12).</p>';
+            grid.innerHTML = `<p style="color:red; text-align:center;">Falha ao carregar os números.<br>${error.message}</p>`;
         } finally {
             grid.dataset.loading = 'false';
         }
     }
+
     carregarDadosDaPlanilha();
 });
