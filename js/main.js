@@ -1,10 +1,9 @@
+// js/main.js - VERSÃO CORRIGIDA E ESTÁVEL
 document.addEventListener('DOMContentLoaded', () => {
-    // --- ÁREA DE CONFIGURAÇÃO ---
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQN0Vnt7NriOVF2j7BayiyVxcbxTwY9IwUjUp8OuOJjRUTQCOkTS3CFdLQYXJ3U3FF/exec';
     const ADMIN_PASSWORD = "rifa123";
     const REPORT_PASSWORD = "report456";
     let rifaData = [];
-    // --- FIM DA ÁREA DE CONFIGURAÇÃO ---
 
     const grid = document.getElementById('number-grid');
     const participantsList = document.getElementById('participants-list');
@@ -26,8 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function criarGrid() {
-        grid.innerHTML = 'Carregando números...';
-        if (rifaData.length === 0 && grid.dataset.loading === 'true') return;
+        if (rifaData.length === 0 && grid.dataset.loading === 'true') {
+             grid.innerHTML = 'Carregando números...';
+             return;
+        }
 
         grid.innerHTML = '';
         for (let i = 1; i <= 100; i++) {
@@ -218,26 +219,21 @@ document.addEventListener('DOMContentLoaded', () => {
         } else { alert('Senha do relatório incorreta!'); }
     });
     
-    // =========================================================
-    // FUNÇÃO CORRIGIDA - A ÚNICA PARTE QUE MUDOU
-    // =========================================================
     async function carregarDadosDaPlanilha() {
         grid.dataset.loading = 'true';
+        grid.innerHTML = 'Carregando números...';
         try {
-            // Voltamos para a chamada direta, sem parâmetros extras
             const response = await fetch(GOOGLE_SCRIPT_URL); 
-            if (!response.ok) throw new Error(`Erro na rede: ${response.statusText}`);
+            if (!response.ok) throw new Error(`Erro de rede ao buscar dados: ${response.statusText}`);
             const data = await response.json();
             rifaData = data.data || [];
             renderizarPagina();
         } catch (error) {
             console.error('Falha ao carregar dados da rifa:', error);
-            grid.innerHTML = '<p style="color:red; text-align:center;">Não foi possível carregar os números. Verifique o console (F12) e as permissões do Google Script.</p>';
+            grid.innerHTML = '<p style="color:red; text-align:center;">Falha ao carregar os números. Verifique as permissões do Google Script e o console (F12).</p>';
         } finally {
             grid.dataset.loading = 'false';
         }
     }
-    // =========================================================
-
     carregarDadosDaPlanilha();
 });
