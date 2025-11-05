@@ -43,9 +43,38 @@ body { margin: 0; padding: 20px; font-family: 'Poppins', sans-serif; background:
 .prize-image img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 5px solid #fff; box-shadow: 0 4px 15px rgba(216, 178, 192, 0.7); }
 .price-box { background-color: #a02c42; color: #fff; padding: 10px 20px; border-radius: 50px; font-weight: 700; text-align: center; margin-bottom: 25px; display: inline-block; }
 .number-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; }
-.numero { display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 40px; padding: 5px; border-radius: 50%; font-weight: bold; transition: all 0.2s ease; cursor: pointer; }
-.numero strong { font-size: 1.1em; }
-.numero .comprador { font-size: 0.6em; margin-top: 1px; font-weight: normal; opacity: 0.9; }
+.numero {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    /* Adicionamos width e height fixos */
+    width: 45px;
+    height: 45px;
+    box-sizing: border-box; /* Garante que padding/border não aumentem o tamanho final */
+    padding: 2px; /* Um pequeno preenchimento para não colar nas bordas */
+    border-radius: 50%;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.numero strong {
+    font-size: 1.1em;
+}
+
+.numero .comprador {
+    font-size: 0.6em;
+    margin-top: 1px;
+    font-weight: normal;
+    opacity: 0.9;
+    /* Novas regras para controlar o texto longo */
+    width: 100%;             /* Ocupa toda a largura do círculo */
+    text-align: center;      /* Centraliza o nome */
+    white-space: nowrap;     /* Impede que o texto quebre a linha */
+    overflow: hidden;        /* Esconde o que passar do limite */
+    text-overflow: ellipsis; /* Adiciona "..." no final do texto cortado */
+}
 .disponivel-status { border: 2px solid #e0c8d1; color: #777; }
 .disponivel-status:hover { background-color: #fdf5f2; transform: scale(1.1); }
 .vendido-status { background-color: #a02c42; border-color: #a02c42; color: #fff; cursor: not-allowed; }
