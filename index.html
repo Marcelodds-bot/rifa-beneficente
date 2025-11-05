@@ -13,7 +13,10 @@
         .main-wrapper { display: flex; align-items: flex-start; justify-content: center; gap: 25px; flex-wrap: wrap; max-width: 1300px; }
         .info-container, .raffle-container, .reservation-container { background-color: #fffcf9; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); box-sizing: border-box; }
         .info-container { width: 320px; }
-        .raffle-container { max-width: 550px; width: 100%; }
+        
+        /* ===== ALTERAÇÃO AQUI ===== */
+        .raffle-container { max-width: 680px; /* Aumentado de 550px para dar mais espaço horizontal */ width: 100%; }
+        
         .reservation-container { width: 300px; }
         .info-container h2, .reservation-container h2 { color: #a02c42; margin-top: 0; text-align: center; }
         .info-container p { font-size: 0.9rem; line-height: 1.6; color: #555; }
@@ -51,11 +54,14 @@
         .description p { margin: 0; color: #666; font-size: 0.9rem; text-align: left; }
         .prize-image { flex: 1; }
         .prize-image img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 5px solid #fff; box-shadow: 0 4px 15px rgba(216, 178, 192, 0.7); }
-        .price-box { background-color: #a02c42; color: #fff; padding: 10px 20px; border-radius: 50px; font-weight: 700; text-align: center; margin-bottom: 25px; display: block; /* Alterado para block para centralizar com margin auto */ margin-left: auto; margin-right: auto; max-width: 300px; }
-        .number-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; }
+        
+        /* ===== ALTERAÇÃO AQUI ===== */
+        .price-box { background-color: #a02c42; color: #fff; padding: 10px 20px; border-radius: 50px; font-weight: 700; text-align: center; margin-bottom: 25px; display: block; margin-left: auto; margin-right: auto; max-width: 400px; /* Aumentado para melhor proporção */ }
+        
+        .number-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 10px; /* Aumentei o gap um pouco para aproveitar o espaço */ }
         .numero { display: flex; flex-direction: column; justify-content: center; align-items: center; aspect-ratio: 1 / 1; padding: 5px; border-radius: 50%; font-weight: bold; transition: all 0.2s ease; cursor: pointer; }
-        .numero strong { font-size: 1.1em; }
-        .numero .comprador { font-size: 0.6em; margin-top: 1px; font-weight: normal; opacity: 0.9; text-align: center; line-height: 1.1;}
+        .numero strong { font-size: 1.2em; /* Aumentei um pouco o número */ }
+        .numero .comprador { font-size: 0.65em; /* Aumentei um pouco o nome */ margin-top: 2px; font-weight: normal; opacity: 0.9; text-align: center; line-height: 1.1;}
         .disponivel-status { border: 2px solid #e0c8d1; color: #777; background-color: #fff; }
         .disponivel-status:hover { background-color: #fdf5f2; transform: scale(1.1); }
         .vendido-status { background-color: #a02c42; border-color: #a02c42; color: #fff; cursor: not-allowed; }
@@ -69,7 +75,13 @@
         .sr-only { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
         @media (max-width: 1250px) {
             .main-wrapper { flex-direction: column; align-items: center; }
-            .info-container, .reservation-container { width: 100%; max-width: 550px; }
+            .info-container, .reservation-container { width: 100%; max-width: 680px; /* Mantém o alinhamento em telas menores */ }
+        }
+        @media (max-width: 720px) {
+            .raffle-container {
+                max-width: 100%;
+                padding: 15px;
+            }
         }
         @media (max-width: 600px) {
             .number-grid { gap: 5px; }
